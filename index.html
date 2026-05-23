@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blank 10-Page 3D Magazine</title>
+    <title>Blank 12-Page 3D Magazine</title>
     <style>
         /* --- Reset & Variables --- */
         * {
@@ -176,14 +176,22 @@
                 <div class="page back" data-page="6"></div>
             </div>
 
+            <!-- Sheet 4 now contains the new blank pages 7 and 8 -->
             <div class="sheet" id="s4">
                 <div class="page front" data-page="7"></div>
                 <div class="page back" data-page="8"></div>
             </div>
 
+            <!-- Sheet 5 now holds what used to be pages 7 and 8 (now 9 and 10) -->
             <div class="sheet" id="s5">
                 <div class="page front" data-page="9"></div>
                 <div class="page back" data-page="10"></div>
+            </div>
+
+            <!-- New Sheet 6 holds the final pushed-down pages 11 and 12 -->
+            <div class="sheet" id="s6">
+                <div class="page front" data-page="11"></div>
+                <div class="page back" data-page="12"></div>
             </div>
 
         </div>
@@ -197,19 +205,21 @@
     <script>
         // =======================================================
         // 🛠️ CENTRAL IMAGE CONFIGURATION ZONE
-        // Enter your image file paths or image URLs here.
+        // Pushed previous 8 & 9 assets down to positions 10 & 11.
         // =======================================================
         const magazineImages = {
-            page1:  "New Project 39 [DBD058F].png",
-            page2:  "",
-            page3:  "New Project 42 [2A1B703].png",
-            page4:  "New Project 40 [4901D21].png",
-            page5:  "Your paragraph text_20260520_234949_0000.png",
+            page1:  "1.png",
+            page2:  "2.png",
+            page3:  "3.png",
+            page4:  "4.png",
+            page5:  "5.png",
             page6:  "6.png",
-            page7:  "New Project 47 [97D933B]~3.png",
-            page8:  "8.png",
-            page9:  "New Project 44 [EF408E6].png",
-            page10: "New Project 43 [1A5C406].png"
+            page7:  "7.png",   // Kept original page 7 intact
+            page8:  "8.png",        // New Blank Left Page
+            page9:  "9.png",        // New Blank Right Page
+            page10: "10.png",   // Moved old page 8 asset here
+            page11: "11.png",   // Moved old page 9 asset here
+            page12: "12.png"   // Moved old page 10 asset here
         };
         // =======================================================
 
@@ -235,12 +245,14 @@
         const prevBtn = document.getElementById("prevBtn");
         const nextBtn = document.getElementById("nextBtn");
         
+        // Added s6 to the engine tracking stack
         const sheets = [
             document.getElementById("s1"),
             document.getElementById("s2"),
             document.getElementById("s3"),
             document.getElementById("s4"),
-            document.getElementById("s5")
+            document.getElementById("s5"),
+            document.getElementById("s6")
         ];
 
         let currentState = 0; 
