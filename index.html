@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blank 12-Page 3D Magazine</title>
+    <title>Premium 3D Album - High Performance Loop</title>
     <style>
         /* --- Reset & Variables --- */
         * {
@@ -13,64 +13,104 @@
         }
 
         :root {
-            --bg-color: #1e293b;         
-            --page-color: #ffffff;       
-            --spine-shadow: rgba(0, 0, 0, 0.2);
-            --page-shadow: rgba(0, 0, 0, 0.4);
+            --bg-color: #2b0c10;         
+            --table-surface: radial-gradient(circle at center, #42161b 0%, #170406 100%);
+            --page-color: #fafaf8;       
+            --spine-shadow: rgba(0, 0, 0, 0.2); 
+            --shadow-flat: rgba(0, 0, 0, 0.6);
+            --accent-color: #d4af37; 
         }
 
         body {
-            background-color: var(--bg-color);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-color);
+            background-image: var(--table-surface);
+            font-family: system-ui, -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
-            padding: 15px;
+            min-height: 100vh;
+            /* INCREASED: Added safety spacing at the bottom of the viewport */
+            padding: 10px 10px 50px 10px; 
             overflow: hidden;
         }
 
         /* --- Global 3D Perspective Wrapper --- */
         .scene {
-            perspective: 2000px; 
+            perspective: 2500px; 
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            flex: 1; 
+            flex: 1;
+            /* ADJUSTED: Constrained height slightly more to push interface elements up safely */
+            max-height: calc(100vh - 220px); 
         }
 
         /* --- Magazine Container --- */
         .magazine {
             position: relative;
-            width: 150vw;
-            max-width: 800px;
+            width: 96vw;
+            max-width: 1200px; 
             aspect-ratio: 1.414 / 1; 
             transform-style: preserve-3d;
-            box-shadow: 0 20px 40px var(--page-shadow);
-            border-radius: 4px;
+            
+            /* STATE 1: Closed Front Cover flat on table */
+            transform: translateY(5%) rotateX(52deg) rotateZ(-7deg) scale(0.75) translateX(-25%);
+            cursor: pointer;
+            
+            transition: transform 1.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* --- The Spine (Center Fold) --- */
+        /* STATE 2: Floating reading mode */
+        .magazine.isOpen {
+            cursor: default;
+            transform: translateY(-2%) rotateX(0deg) rotateZ(0deg) scale(0.95) translateX(-25%);
+        }
+
+        /* Reading view alignment updates */
+        .magazine.isOpen.isReading {
+            transform: translateY(-2%) rotateX(0deg) rotateZ(0deg) scale(0.95) translateX(0%);
+        }
+        
+        /* STATE 3: Final Spread View (Pages 11 and 12 fully opened) */
+        .magazine.isOpen.isEnd {
+            transform: translateY(-2%) rotateX(0deg) rotateZ(0deg) scale(0.95) translateX(25%);
+        }
+
+        /* STATE 4: Final Closed Back Cover flat on table */
+        .magazine.isClosedBack {
+            cursor: pointer; 
+            transform: translateY(5%) rotateX(52deg) rotateZ(7deg) scale(0.75) translateX(25%);
+        }
+
+        /* --- Center Spine Shadow --- */
         .magazine::after {
             content: '';
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 1.5%; 
+            width: 2.2%; 
             height: 100%;
             background: linear-gradient(to right, 
                 rgba(0,0,0,0) 0%, 
-                var(--spine-shadow) 40%, 
-                var(--spine-shadow) 60%, 
+                rgba(0,0,0,0.1) 25%,
+                var(--spine-shadow) 48%, 
+                rgba(0,0,0,0.4) 50%,
+                var(--spine-shadow) 52%, 
+                rgba(0,0,0,0.1) 75%,
                 rgba(0,0,0,0) 100%);
             z-index: 100;
             pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        .magazine.isOpen::after {
+            opacity: 1;
         }
 
-        /* --- Sheet Layout --- */
+        /* --- Sheet Layout & Thick White Paper Stack Edge --- */
         .sheet {
             position: absolute;
             top: 0;
@@ -79,7 +119,38 @@
             height: 100%;
             transform-origin: left center; 
             transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.75s cubic-bezier(0.25, 1, 0.35, 1), box-shadow 0.75s ease;
+            will-change: transform, z-index;
+            
+            box-shadow: 1px 0px 0px #ffffff,
+                        2px 1px 0px #e2e8f0,
+                        3px 1px 0px #ffffff,
+                        4px 2px 0px #e2e8f0,
+                        5px 2px 0px #ffffff,
+                        6px 3px 0px #cbd5e1,
+                        7px 3px 10px rgba(0,0,0,0.3),
+                        12px 16px 22px var(--shadow-flat);
+        }
+
+        .magazine.isOpen .sheet {
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .sheet.flipped {
+            transform: rotateY(-180deg); 
+            box-shadow: none !important;
+        }
+
+        .magazine.isClosedBack #s6.flipped {
+            transform: rotateY(-180deg);
+            box-shadow: -1px 0px 0px #ffffff,
+                        -2px 1px 0px #e2e8f0,
+                        -3px 1px 0px #ffffff,
+                        -4px 2px 0px #e2e8f0,
+                        -5px 2px 0px #ffffff,
+                        -6px 3px 0px #cbd5e1,
+                        -7px 3px 10px rgba(0,0,0,0.3),
+                        -12px 16px 22px var(--shadow-flat) !important;
         }
 
         /* --- Individual Page Styling --- */
@@ -91,24 +162,24 @@
             height: 100%;
             background-color: var(--page-color);
             backface-visibility: hidden; 
+            -webkit-backface-visibility: hidden;
             user-select: none;
             overflow: hidden;
         }
 
-        /* Front Side (Odd Pages) */
         .page.front {
             z-index: 2;
             transform: rotateY(0deg);
-            border-radius: 0 4px 4px 0;
+            border-radius: 0 6px 6px 0;
+            box-shadow: inset 15px 0 20px rgba(0,0,0,0.02);
         }
 
-        /* Back Side (Even Pages) */
         .page.back {
             transform: rotateY(180deg);
-            border-radius: 4px 0 0 4px;
+            border-radius: 6px 0 0 6px;
+            box-shadow: inset -15px 0 20px rgba(0,0,0,0.02);
         }
 
-        /* --- Dynamic Full Page Image Fit --- */
         .page img {
             width: 100%;
             height: 100%;
@@ -116,43 +187,151 @@
             display: block;
         }
 
-        /* --- Animation Action States --- */
-        .sheet.flipped {
-            transform: rotateY(-180deg); 
+        /* --- Hotspots --- */
+        .hotspot {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            z-index: 110; 
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0); 
+            display: none; 
         }
 
-        /* --- Controls & Navigation --- */
+        .hotspot-left { left: 0; }
+        .hotspot-right { right: 0; }
+
+        /* --- Controls HUD --- */
         .controls {
-            padding: 15px 0;
+            padding: 5px 0;
             display: flex;
             gap: 20px;
             align-items: center;
             width: 100%;
             justify-content: center;
+            z-index: 200;
+            opacity: 0; 
+            transform: translateY(10px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            pointer-events: none;
+            /* ADJUSTED: Shifted up slightly from the bar below it */
+            margin-bottom: 5px; 
+        }
+
+        .controls.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
 
         button {
-            background-color: #ffffff;
-            color: #0f172a;
-            border: none;
-            padding: 10px 24px;
-            font-size: 0.9rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #f1f5f9;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 8px 22px;
+            font-size: 0.75rem;
             font-weight: 600;
-            border-radius: 8px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
             transition: all 0.2s ease;
         }
 
         button:hover:not(:disabled) {
-            background-color: #f8fafc;
+            background-color: var(--accent-color);
+            color: #0b0c10;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.35);
         }
 
         button:disabled {
-            background-color: #475569;
-            color: #94a3b8;
+            background-color: rgba(255, 255, 255, 0.01);
+            color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.02);
             cursor: not-allowed;
-            box-shadow: none;
+        }
+
+        /* --- Thumbnails Strip Dock --- */
+        .thumbnail-dock {
+            width: 95vw;
+            max-width: 1000px;
+            background: rgba(23, 4, 6, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            z-index: 300;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: none;
+            /* CHANGED: Elevated margin bottom pushes the navigation dock comfortably away from the browser edge */
+            margin-bottom: 25px; 
+        }
+
+        .thumbnail-dock.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .thumb-item {
+            flex: 1;
+            aspect-ratio: 1.414 / 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.5;
+            transition: opacity 0.25s ease;
+        }
+
+        .thumb-item.end-block {
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .thumb-item:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+        .thumb-item:hover img {
+            opacity: 0.8;
+        }
+
+        .thumb-item.active {
+            border-color: var(--accent-color);
+            background: rgba(214, 175, 55, 0.1);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+            transform: translateY(-3px);
+        }
+        .thumb-item.active img {
+            opacity: 1;
+        }
+        .thumb-item.active.end-block {
+            color: var(--accent-color);
         }
     </style>
 </head>
@@ -176,19 +355,16 @@
                 <div class="page back" data-page="6"></div>
             </div>
 
-            <!-- Sheet 4 now contains the new blank pages 7 and 8 -->
             <div class="sheet" id="s4">
                 <div class="page front" data-page="7"></div>
                 <div class="page back" data-page="8"></div>
             </div>
 
-            <!-- Sheet 5 now holds what used to be pages 7 and 8 (now 9 and 10) -->
             <div class="sheet" id="s5">
                 <div class="page front" data-page="9"></div>
                 <div class="page back" data-page="10"></div>
             </div>
 
-            <!-- New Sheet 6 holds the final pushed-down pages 11 and 12 -->
             <div class="sheet" id="s6">
                 <div class="page front" data-page="11"></div>
                 <div class="page back" data-page="12"></div>
@@ -197,16 +373,28 @@
         </div>
     </div>
 
-    <div class="controls">
-        <button id="prevBtn" disabled>Previous</button>
-        <button id="nextBtn">Next</button>
+    <div class="controls" id="controlsHUD">
+        <button id="prevBtn" disabled>◄ Previous</button>
+        <button id="nextBtn">Next ►</button>
+    </div>
+
+    <div class="thumbnail-dock" id="thumbDock">
+        <div class="thumb-item active" data-target-state="0" data-thumb-page="1"></div>
+        <div class="thumb-item" data-target-state="1" data-thumb-page="2"></div>
+        <div class="thumb-item" data-target-state="1" data-thumb-page="3"></div>
+        <div class="thumb-item" data-target-state="2" data-thumb-page="4"></div>
+        <div class="thumb-item" data-target-state="2" data-thumb-page="5"></div>
+        <div class="thumb-item" data-target-state="3" data-thumb-page="6"></div>
+        <div class="thumb-item" data-target-state="3" data-thumb-page="7"></div>
+        <div class="thumb-item" data-target-state="4" data-thumb-page="8"></div>
+        <div class="thumb-item" data-target-state="4" data-thumb-page="9"></div>
+        <div class="thumb-item" data-target-state="5" data-thumb-page="10"></div>
+        <div class="thumb-item" data-target-state="5" data-thumb-page="11"></div>
+        <div class="thumb-item" data-target-state="6" data-thumb-page="12"></div>
+        <div class="thumb-item end-block" data-target-state="7">END</div>
     </div>
 
     <script>
-        // =======================================================
-        // 🛠️ CENTRAL IMAGE CONFIGURATION ZONE
-        // Pushed previous 8 & 9 assets down to positions 10 & 11.
-        // =======================================================
         const magazineImages = {
             page1:  "1.png",
             page2:  "2.png",
@@ -214,38 +402,48 @@
             page4:  "4.png",
             page5:  "5.png",
             page6:  "6.png",
-            page7:  "7.png",   // Kept original page 7 intact
-            page8:  "8.png",        // New Blank Left Page
-            page9:  "9.png",        // New Blank Right Page
-            page10: "10.png",   // Moved old page 8 asset here
-            page11: "11.png",   // Moved old page 9 asset here
-            page12: "12.png"   // Moved old page 10 asset here
+            page7:  "7.png",   
+            page8:  "8.png",        
+            page9:  "9.png",        
+            page10: "10.png",   
+            page11: "11.png",   
+            page12: "12.png"   
         };
-        // =======================================================
 
-        // Automatically append image nodes into the blank wrappers
         function injectImages() {
             Object.keys(magazineImages).forEach(key => {
                 const pageNum = key.replace("page", "");
                 const imageSrc = magazineImages[key];
-                
                 if (imageSrc !== "") {
                     const pageElement = document.querySelector(`[data-page="${pageNum}"]`);
                     if (pageElement) {
                         const img = document.createElement("img");
                         img.src = imageSrc;
-                        img.alt = `Page ${pageNum} Graphic`;
+                        img.alt = `Page ${pageNum}`;
                         pageElement.appendChild(img);
                     }
                 }
             });
         }
 
-        // Book Frame Controller Physics
+        function injectThumbnails() {
+            document.querySelectorAll('.thumb-item').forEach(item => {
+                const pageNum = item.getAttribute('data-thumb-page');
+                if (pageNum && magazineImages[`page${pageNum}`]) {
+                    const img = document.createElement("img");
+                    img.src = magazineImages[`page${pageNum}`];
+                    img.alt = `Thumb ${pageNum}`;
+                    item.appendChild(img);
+                }
+            });
+        }
+
         const prevBtn = document.getElementById("prevBtn");
         const nextBtn = document.getElementById("nextBtn");
+        const magazine = document.getElementById("magazine");
+        const controlsHUD = document.getElementById("controlsHUD");
+        const thumbDock = document.getElementById("thumbDock");
         
-        // Added s6 to the engine tracking stack
         const sheets = [
             document.getElementById("s1"),
             document.getElementById("s2"),
@@ -255,8 +453,17 @@
             document.getElementById("s6")
         ];
 
+        const hotspotLeft = document.createElement('div');
+        hotspotLeft.className = 'hotspot hotspot-left';
+        const hotspotRight = document.createElement('div');
+        hotspotRight.className = 'hotspot hotspot-right';
+        magazine.appendChild(hotspotLeft);
+        magazine.appendChild(hotspotRight);
+
         let currentState = 0; 
-        const maxState = sheets.length;
+        const maxState = sheets.length + 2; 
+        let isAnimating = false;
+        let bookLifted = false; 
 
         function initZIndex() {
             for (let i = 0; i < sheets.length; i++) {
@@ -264,37 +471,213 @@
             }
         }
 
+        magazine.addEventListener("click", () => {
+            if (magazine.classList.contains("isClosedBack")) {
+                resetToCoverSmoothly();
+                return;
+            }
+            if (!bookLifted) liftBookUp();
+        });
+
+        function liftBookUp() {
+            bookLifted = true;
+            magazine.className = "magazine isOpen";
+            currentState = 0;
+            
+            setTimeout(() => {
+                controlsHUD.classList.add("show");
+                thumbDock.classList.add("show");
+                updateLayoutPlacement();
+            }, 300);
+        }
+
+        function resetToCoverSmoothly() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            magazine.classList.remove("isClosedBack");
+            magazine.classList.add("isOpen");
+            
+            currentState = 0;
+            const totalSheets = sheets.length;
+            const customDuration = 0.5;  
+            const cascadeInterval = 0.08; 
+
+            sheets.forEach((sheet, idx) => {
+                const reverseOrderIndex = totalSheets - 1 - idx; 
+                
+                sheet.style.transition = `transform ${customDuration}s cubic-bezier(0.25, 1, 0.4, 1), box-shadow ${customDuration}s ease`;
+                sheet.style.transitionDelay = `${reverseOrderIndex * cascadeInterval}s`; 
+                sheet.classList.remove("flipped");
+                
+                setTimeout(() => {
+                    sheet.style.zIndex = totalSheets - idx;
+                }, (reverseOrderIndex * cascadeInterval * 1000) + 200);
+            });
+
+            const totalAnimationTime = ((totalSheets - 1) * cascadeInterval + customDuration) * 1000;
+            
+            setTimeout(() => {
+                sheets.forEach(sheet => {
+                    sheet.style.transition = "";
+                    sheet.style.transitionDelay = "";
+                });
+                
+                bookLifted = true;
+                controlsHUD.classList.add("show");
+                thumbDock.classList.add("show");
+                updateLayoutPlacement();
+                isAnimating = false;
+            }, totalAnimationTime + 10);
+        }
+
         function goNext() {
-            if (currentState < maxState) {
+            if (isAnimating || currentState >= maxState - 1) return;
+            isAnimating = true;
+
+            if (!bookLifted) {
+                liftBookUp();
+                isAnimating = false;
+                return;
+            }
+
+            if (currentState < sheets.length) {
                 const targetSheet = sheets[currentState];
                 targetSheet.classList.add("flipped");
-                targetSheet.style.zIndex = currentState + 1;
-                currentState++;
-                updateButtons();
+                setTimeout(() => { targetSheet.style.zIndex = currentState; }, 180);
             }
+
+            currentState++;
+            updateLayoutPlacement();
+            setTimeout(() => { isAnimating = false; }, 400);
         }
 
         function goPrev() {
-            if (currentState > 0) {
-                currentState--;
+            if (isAnimating || currentState <= 0 || magazine.classList.contains("isClosedBack")) return;
+            isAnimating = true;
+
+            currentState--;
+            
+            if (currentState < sheets.length) {
                 const targetSheet = sheets[currentState];
                 targetSheet.classList.remove("flipped");
-                targetSheet.style.zIndex = sheets.length - currentState;
-                updateButtons();
+                setTimeout(() => { targetSheet.style.zIndex = sheets.length - currentState; }, 140);
+            }
+
+            updateLayoutPlacement();
+            setTimeout(() => { isAnimating = false; }, 400);
+        }
+     
+     function jumpToState(targetState) {
+            if (currentState === targetState) return;
+
+            function step() {
+                if (currentState < targetState) {
+                    if (currentState < sheets.length) {
+                        const targetSheet = sheets[currentState];
+                        targetSheet.classList.add("flipped");
+                        const currentIdx = currentState;
+                        setTimeout(() => { targetSheet.style.zIndex = currentIdx; }, 50);
+                    }
+                    currentState++;
+                } else if (currentState > targetState) {
+                    currentState--;
+                    if (currentState < sheets.length) {
+                        const targetSheet = sheets[currentState];
+                        targetSheet.classList.remove("flipped");
+                        const currentIdx = currentState;
+                        setTimeout(() => { targetSheet.style.zIndex = sheets.length - currentIdx; }, 45);
+                    }
+                }
+
+                updateLayoutPlacement();
+
+                if (currentState !== targetState) {
+                    setTimeout(step, 100); 
+                } else {
+                    setTimeout(() => { isAnimating = false; }, 200);
+                }
+            }
+
+            step();
+        }
+
+        function updateLayoutPlacement() {
+            updateButtons();
+            updateThumbnails();
+
+            magazine.classList.remove("isReading", "isEnd", "isClosedBack");
+
+            if (currentState === 0) {
+                // Cover
+            } else if (currentState === maxState - 1) {
+                magazine.classList.remove("isOpen");
+                magazine.classList.add("isClosedBack");
+                controlsHUD.classList.remove("show");
+                thumbDock.classList.remove("show");
+                bookLifted = false;
+            } else if (currentState === sheets.length) {
+                magazine.classList.add("isEnd");
+            } else {
+                magazine.classList.add("isReading");
             }
         }
 
         function updateButtons() {
-            prevBtn.disabled = (currentState === 0);
-            nextBtn.disabled = (currentState === maxState);
+            prevBtn.disabled = (currentState === 0 || magazine.classList.contains("isClosedBack"));
+            nextBtn.disabled = (currentState === maxState - 1);
+
+            if (currentState === 0) {
+                hotspotLeft.style.display = "none";
+                hotspotRight.style.display = "block";
+            } else if (currentState === maxState - 1 || magazine.classList.contains("isClosedBack")) {
+                hotspotLeft.style.display = "none";
+                hotspotRight.style.display = "none";
+            } else if (currentState === sheets.length) {
+                hotspotLeft.style.display = "block";
+                hotspotRight.style.display = "block"; 
+            } else {
+                hotspotLeft.style.display = "block";
+                hotspotRight.style.display = "block";
+            }
         }
 
-        // Setup Runtime Engines
+        function updateThumbnails() {
+            document.querySelectorAll('.thumb-item').forEach(item => {
+                const target = parseInt(item.getAttribute('data-target-state'));
+                if (target === currentState) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        document.querySelectorAll('.thumb-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isAnimating) return;
+                const target = parseInt(item.getAttribute('data-target-state'));
+                isAnimating = true;
+                jumpToState(target);
+            });
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") goNext();
+            if (e.key === "ArrowLeft") goPrev();
+        });
+
+        nextBtn.addEventListener("click", (e) => { e.stopPropagation(); goNext(); });
+        prevBtn.addEventListener("click", (e) => { e.stopPropagation(); goPrev(); });
+        hotspotRight.addEventListener("click", (e) => { e.stopPropagation(); goNext(); });
+        hotspotLeft.addEventListener("click", (e) => { e.stopPropagation(); goPrev(); });
+
         injectImages();
+        injectThumbnails();
         initZIndex();
-        
-        nextBtn.addEventListener("click", goNext);
-        prevBtn.addEventListener("click", goPrev);
     </script>
 </body>
 </html>
+        
+     
